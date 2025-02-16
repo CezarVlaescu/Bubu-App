@@ -1,6 +1,5 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const axios = require("axios");
-const cheerio = require("cheerio");
+const puppeteer = require("puppeteer");
 require("dotenv").config();
 
 exports.handler = async function (event) {
@@ -11,7 +10,7 @@ exports.handler = async function (event) {
         };
     }
 
-    const { input } = JSON.parse(event.body);
+    const { input, question } = JSON.parse(event.body);
     if (!input) {
         return {
             statusCode: 400,
@@ -21,17 +20,25 @@ exports.handler = async function (event) {
 
     let text = input;
 
+    // 🔹 Dacă input-ul este un URL, extragem conținutul folosind Puppeteer
     if (input.startsWith("http")) {
         try {
-            console.log("🔍 Fetching article content from URL:", input);
-            const response = await axios.get(input);
-            const $ = cheerio.load(response.data);
+            console.log("🔍 Launching Puppeteer...");
+            const browser = await puppeteer.launch({ headless: "new" });
+            const page = await browser.newPage();
+            await page.goto(input, { waitUntil: "domcontentloaded" });
 
-            text = $("#mw-content-text p").text();
+            // 🔹 Extragem doar paragrafele de text
+            text = await page.evaluate(() => {
+                return Array.from(document.querySelectorAll("p"))
+                    .map(p => p.innerText)
+                    .join("\n");
+            });
+
+            await browser.close();
 
             if (!text) throw new Error("No article content found.");
-
-            console.log("✅ Extracted text:", text.slice(0, 300) + "...");
+            console.log("✅ Extracted text:", text.slice(0, 300) + "..."); // Log doar primele 300 caractere
         } catch (error) {
             console.error("❌ Failed to fetch article:", error);
             return {
@@ -42,16 +49,24 @@ exports.handler = async function (event) {
     }
 
     try {
+        // 🔹 Inițializează Google Gemini API
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+        let prompt;
+        if (question) {
+            prompt = `Text extras din articol:\n\n${text}\n\nÎntrebare: ${question}\n\nRăspunde clar și concis.`;
+        } else {
+            prompt = `Rezumă acest text:\n\n${text}`;
+        }
+
         console.log("🔹 Sending request to Gemini...");
-        const result = await model.generateContent(`Rezumă acest text:\n\n${text}`);
-        const summary = result.response.text();
+        const result = await model.generateContent(prompt);
+        const answer = result.response.text();
 
         return {
             statusCode: 200,
-            body: JSON.stringify(summary)
+            body: JSON.stringify(answer)
         };
     } catch (error) {
         console.error("❌ Gemini API error:", error.message);
