@@ -1,0 +1,49 @@
+.link-checker-container {
+    background-color: purple;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    align-items: center;
+    gap: 20px;
+}
+
+.link-checker-textarea {
+    background-color: white;
+    width: 90vw;
+    height: 30vh;
+}
+
+.link-checker-button {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+}
+
+.link-checker-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.link-checker-table th,
+.link-checker-table td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+}
+
+.valid {
+    color: green;
+    font-weight: bold;
+}
+
+.invalid {
+    color: red;
+    font-weight: bold;
+}
