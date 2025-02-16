@@ -15,7 +15,7 @@ export default function Homepage() {
             <div className='homepage_container__services__right'>
                 <ChoicesLabel name={'Link Checker'} link={'/link-checker'} />
                 <ChoicesLabel name={'Investigation Helper'} link={'/investigation-helper'} /> 
-                <ChoicesLabel name={'Resume a site'} link={'/resume-a-site'} />
+                <ChoicesLabel name={'Resume a site'} link={'/summarize-articles'} />
             </div>
             <div className='homepage_container__services__left'>
                 <ChoicesLabel name={'PEP Creator'} link={'/pep-creator'} />

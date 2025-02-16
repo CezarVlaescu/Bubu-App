@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
     "cra-template": "1.2.0",
     "dotenv": "^16.4.7",
     "isomorphic-fetch": "^3.0.0",
