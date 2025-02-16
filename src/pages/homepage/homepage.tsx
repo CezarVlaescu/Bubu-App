@@ -24,5 +24,4 @@ export default function Homepage() {
         </div>
     </div>
     )
-
 }
