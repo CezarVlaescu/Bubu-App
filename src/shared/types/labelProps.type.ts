@@ -12,9 +12,3 @@ export enum StatusEnum {
     VALID = 'VALID',
     INVALID = 'INVALID'
 }
-
-const badStatus = ['300', '400', '404']
-
-export const mapStatus = (status: string): StatusEnum => {
-    return badStatus.includes(status) ? StatusEnum.INVALID : StatusEnum.VALID;
-};

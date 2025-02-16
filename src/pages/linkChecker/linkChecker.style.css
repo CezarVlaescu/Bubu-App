@@ -47,3 +47,8 @@
     color: red;
     font-weight: bold;
 }
+
+.link-checker-container__buttons {
+    display: flex;
+    gap: 10px;
+}
