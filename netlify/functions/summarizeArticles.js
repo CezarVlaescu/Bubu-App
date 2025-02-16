@@ -20,7 +20,6 @@ exports.handler = async function (event) {
 
     let text = input;
 
-    // 🔹 Dacă input-ul este un URL, extragem conținutul folosind Puppeteer
     if (input.startsWith("http")) {
         try {
             console.log("🔍 Launching Puppeteer...");
@@ -28,7 +27,6 @@ exports.handler = async function (event) {
             const page = await browser.newPage();
             await page.goto(input, { waitUntil: "domcontentloaded" });
 
-            // 🔹 Extragem doar paragrafele de text
             text = await page.evaluate(() => {
                 return Array.from(document.querySelectorAll("p"))
                     .map(p => p.innerText)
@@ -38,7 +36,7 @@ exports.handler = async function (event) {
             await browser.close();
 
             if (!text) throw new Error("No article content found.");
-            console.log("✅ Extracted text:", text.slice(0, 300) + "..."); // Log doar primele 300 caractere
+            console.log("✅ Extracted text:", text.slice(0, 300) + "...");
         } catch (error) {
             console.error("❌ Failed to fetch article:", error);
             return {
@@ -49,7 +47,6 @@ exports.handler = async function (event) {
     }
 
     try {
-        // 🔹 Inițializează Google Gemini API
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
