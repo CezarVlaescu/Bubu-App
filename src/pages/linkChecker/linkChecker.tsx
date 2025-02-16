@@ -46,7 +46,11 @@ export default function LinkChecker() {
                     <tbody>
                         {results.map((r: { link: string; status: StatusEnum; }, index: number) => (
                             <tr key={index}>
-                                <td style={{color: 'white'}}>{r.link}</td>
+                                <td>
+                                    <a href={r.link} target="_blank" rel="noopener noreferrer" style={{ color: "white", textDecoration: "underline" }}>
+                                        {r.link}
+                                    </a>
+                                </td>
                                 <td className={r.status === StatusEnum.VALID ? "valid" : "invalid"}>
                                     {r.status === StatusEnum.VALID ? "✅ VALID" : "❌ INVALID"}
                                 </td>
