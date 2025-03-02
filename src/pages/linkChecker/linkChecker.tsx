@@ -1,12 +1,12 @@
 import './linkChecker.style.css';
 import React, { useState } from 'react';
 import { checkLinks } from '../../api/linkCheckerCalls.ts';
-import { StatusEnum } from '../../shared/types/labelProps.type.ts';
+import { StatusEnum, TLinkCheckerResponse } from '../../shared/types/labelProps.type.ts';
 import { useNavigate } from 'react-router-dom';
 
 export default function LinkChecker() {
     const [links, setLinks] = useState("");
-    const [results, setResults] = useState([]);
+    const [results, setResults] = useState<TLinkCheckerResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ export default function LinkChecker() {
                     {"Intoarcere acasa"}
                 </button>
             </div>
-            {results.length > 0 && (
+            {results?.length > 0 && (
                 <table className="link-checker-table">
                     <thead>
                         <tr>
@@ -44,7 +44,7 @@ export default function LinkChecker() {
                         </tr>
                     </thead>
                     <tbody>
-                        {results.map((r: { link: string; status: StatusEnum; }, index: number) => (
+                        {results.map((r, index: number) => (
                             <tr key={index}>
                                 <td>
                                     <a href={r.link} target="_blank" rel="noopener noreferrer" style={{ color: "white", textDecoration: "underline" }}>

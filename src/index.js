@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Homepage from './pages/homepage/homepage.tsx';
 import LinkChecker from './pages/linkChecker/linkChecker.tsx';
 import SummarizeArticles from './pages/summarizeArticles/summarizeArticles.tsx';
+import InvestigationHelper from './pages/investigationHelper/investigationHelper.tsx';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -14,6 +15,7 @@ root.render(
         <Route path="" element={<Homepage/>}/>
         <Route path="/link-checker" element={<LinkChecker/>}/>
         <Route path="/summarize-articles" element={<SummarizeArticles />} />
+        <Route path='/investigation-helper' element={<InvestigationHelper />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
