@@ -3,3 +3,14 @@ export type TPdfExtractResponse = {
     foundText: string;
     percentage: string;
 };
+
+export type TPoliticalProfileResponse = {
+    name: string;
+    positions: {
+        title: string;
+        status: string;
+        start_date: string;
+        end_date: string;
+    }[];
+    sources: string[];
+}
