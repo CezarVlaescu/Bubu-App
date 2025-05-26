@@ -54,6 +54,7 @@ exports.handler = async function (event) {
 
         {
             "name": "Numele politicianului",
+            "parties": "Numele partidului 1",
             "positions": [
                 {
                     "title": "Titlul funcției",
@@ -77,20 +78,16 @@ exports.handler = async function (event) {
         const rawText = await result.response.text();
         console.log("🔹 Gemini raw response:", rawText);
         
-        // Eliminăm delimitatorii de cod, spațiile extra și caracterele nedorite
         const cleanedText = rawText
-            .trim() // Elimină spațiile de la început și sfârșit
-            .replace(/^```json\s*/, "") // Elimină ```json de la început
-            .replace(/\s*```$/, ""); // Elimină ``` de la sfârșit
+            .trim()
+            .replace(/^```json\s*/, "")
+            .replace(/\s*```$/, "");
         
         console.log("🔹 Cleaned JSON response:", cleanedText);
         
-        // Verificăm dacă este JSON valid
         let answer;
         try {
             answer = JSON.parse(cleanedText);
-        
-            // Dacă răspunsul nu conține nume sau poziții, returnăm eroare
             if (!answer.name || !Array.isArray(answer.positions)) {
                 throw new Error("Invalid JSON structure");
             }
@@ -100,12 +97,10 @@ exports.handler = async function (event) {
                 statusCode: 500,
                 body: JSON.stringify({ 
                     error: "Invalid JSON response from Gemini",
-                    rawResponse: cleanedText // Acum trimitem versiunea curățată pentru debugging
+                    rawResponse: cleanedText
                 })
             };
         }
-
-        // 🔹 Excludem linkurile de Wikipedia
         if (answer.sources) {
             answer.sources = answer.sources.filter(url => !url.includes("wikipedia.org"));
         }

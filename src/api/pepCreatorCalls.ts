@@ -6,7 +6,7 @@ export const fetchPoliticalProfile = async (politician: string, customSource?: s
 
     if (!cleanedPolitician) {
         console.error("❌ Politician name is missing in API call.");
-        return null; // Prevenim request-ul dacă inputul este gol
+        return null;
     }
 
     const response = await fetch("/.netlify/functions/pepCreator", {
@@ -26,6 +26,7 @@ export const fetchPoliticalProfile = async (politician: string, customSource?: s
 
     return {
         name: data.name,
+        parties: data.parties,
         positions: Array.isArray(data.positions) ? data.positions.map((item: any) => ({
             title: item.title,
             status: item.status,

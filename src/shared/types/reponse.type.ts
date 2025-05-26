@@ -6,6 +6,7 @@ export type TPdfExtractResponse = {
 
 export type TPoliticalProfileResponse = {
     name: string;
+    parties?: string[];
     positions: {
         title: string;
         status: string;

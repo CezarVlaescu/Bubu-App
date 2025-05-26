@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import './pepCreator.styles.css';
 import { TPoliticalProfileResponse } from "../../shared/types/reponse.type.ts";
 import { fetchPoliticalProfile } from "../../api/pepCreatorCalls.ts";
+import { formatPositionDates } from "../../shared/helpers/formatPositionDatesHelpers.ts";
 
 export default function PEPCreator() {
     const [politician, setPolitician] = useState("");
@@ -51,7 +52,7 @@ export default function PEPCreator() {
                             {profile.positions.map((pos, index) => (
                                 <li key={index}>
                                     <strong>{pos.title}</strong> - {pos.status} <br />
-                                    🗓 {pos.start_date} - {pos.end_date}
+                                    🗓 {formatPositionDates(pos.status, pos.start_date, pos.end_date)}
                                 </li>
                             ))}
                         </ul>
@@ -60,12 +61,19 @@ export default function PEPCreator() {
                     )}
                     
                     <h4>🔗 Surse:</h4>
-                    {profile.sources.length > 0 ? (
-                        <ul>
-                            {profile.sources.map((url, index) => (
-                                <li key={index}><a href={url} target="_blank" rel="noopener noreferrer">{url}</a></li>
-                            ))}
-                        </ul>
+                    {profile.parties && profile.sources.length > 0 ? (
+                          <><>
+                            <h4>🏛️ Afilieri politice:</h4>
+                            <ul>
+                                {profile.parties.map((party, index) => (
+                                    <li key={index}>{party}</li>
+                                ))}
+                            </ul>
+                        </><ul>
+                                {profile.sources.map((url, index) => (
+                                    <li key={index}><a href={url} target="_blank" rel="noopener noreferrer">{url}</a></li>
+                                ))}
+                            </ul></>
                     ) : (
                         <p>⚠️ Nu există surse disponibile.</p>
                     )}
