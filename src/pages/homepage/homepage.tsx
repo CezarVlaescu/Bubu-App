@@ -19,7 +19,7 @@ export default function Homepage() {
             </div>
             <div className='homepage_container__services__left'>
                 <ChoicesLabel name={'PEP Creator'} link={'/pep-creator'} />
-                <ChoicesLabel name={'Create the segment'} link={'/create-a-segment'} /> 
+                <ChoicesLabel name={'Consuls/Ambassadors'} link={'/consuls'} /> 
                 <ChoicesLabel name={'AM/ENF'} link={'/am-enf'} />
             </div>
         </div>

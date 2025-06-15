@@ -7,6 +7,7 @@ import LinkChecker from './pages/linkChecker/linkChecker.tsx';
 import SummarizeArticles from './pages/summarizeArticles/summarizeArticles.tsx';
 import InvestigationHelper from './pages/investigationHelper/investigationHelper.tsx';
 import PEPCreator from './pages/pepCreator/pepCreator.tsx';
+import ConsulsCreator from './pages/consulsCreator/consulsCreator.tsx';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -18,6 +19,7 @@ root.render(
         <Route path="/summarize-articles" element={<SummarizeArticles />} />
         <Route path='/investigation-helper' element={<InvestigationHelper />} />
         <Route path='/pep-creator' element={<PEPCreator />} />
+        <Route path='/consuls' element={<ConsulsCreator />}/>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

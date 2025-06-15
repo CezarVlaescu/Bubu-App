@@ -15,3 +15,16 @@ export type TPoliticalProfileResponse = {
     }[];
     sources: string[];
 }
+
+export type Entry = {
+  city: string;
+  type: string;
+  address: string;
+  person: string;
+};
+
+export type TConsulResponseData = {
+  embassyUrl: string;
+  entries: Entry[];
+};
+
