@@ -1,6 +1,5 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
-const puppeteer = require("puppeteer");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
 
@@ -23,19 +22,8 @@ exports.handler = async function (event) {
   }
 
   try {
-    const browser = await puppeteer.launch({ headless: "new" });
-    const page = await browser.newPage();
-    await page.goto(embassyUrl, { waitUntil: "domcontentloaded" });
-
-    await page.evaluate(() => {
-      document.querySelectorAll('.accordion-block__list__item__header__title').forEach(button => button.click());
-    });
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const content = await page.content();
-    const $ = cheerio.load(content);
-    await browser.close();
+    const response = await axios.get(embassyUrl);
+    const $ = cheerio.load(response.data);
 
     const cityHeader = $(`.accordion-block__list__item__header__title__text:contains(${city})`).first();
     const cityContent = cityHeader.closest('.accordion-block__list__item').find('.accordion-block__list__item__content__inner');
@@ -52,7 +40,7 @@ exports.handler = async function (event) {
       const current = $(pTags[i]).text().trim();
       const next = $(pTags[i + 1])?.text().trim();
 
-      // Try to extract the full address block
+      // Adresă detectată din HTML cu <br>?
       if (!current && $(pTags[i]).hasClass('consulate-info-block__content__value')) {
         const rawHtml = $(pTags[i]).html();
         if (rawHtml?.includes('<br>')) {
@@ -88,7 +76,7 @@ exports.handler = async function (event) {
     const emailIndex = details.findIndex(line => /@/.test(line));
     const addressDetails = emailIndex >= 0 ? details.slice(emailIndex + 1) : [];
 
-    // Use AI fallback for address if still not found
+    // Fallback la Gemini pentru address dacă n-am găsit
     if (address === "Not found on page" && addressDetails.length > 0) {
       try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -125,7 +113,3 @@ Return just the address as a one-line string.`;
     };
   }
 };
-
-
-
-
