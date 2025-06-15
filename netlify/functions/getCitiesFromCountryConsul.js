@@ -1,7 +1,5 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
-const puppeteer = require("puppeteer");
-require("dotenv").config();
 
 exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
@@ -25,7 +23,6 @@ exports.handler = async function (event) {
   const listUrl = `${baseUrl}/en/embassies/`;
 
   try {
-    console.log("🌍 Searching for embassy URL for:", country);
     const listPage = await axios.get(listUrl);
     const $ = cheerio.load(listPage.data);
     let embassyUrl = "";
@@ -40,7 +37,6 @@ exports.handler = async function (event) {
     });
 
     if (!embassyUrl) {
-      console.log("❌ Embassy URL not found.");
       return {
         statusCode: 404,
         body: JSON.stringify({ error: "Embassy not found for this country." }),
@@ -48,32 +44,21 @@ exports.handler = async function (event) {
       };
     }
 
-    console.log("✅ Embassy URL found:", embassyUrl);
+    // 🧠 Fetch HTML fără Puppeteer
+    const pageHtml = await axios.get(embassyUrl);
+    const $$ = cheerio.load(pageHtml.data);
 
-    const browser = await puppeteer.launch({ headless: "new" });
-    const page = await browser.newPage();
-    await page.goto(embassyUrl, { waitUntil: "domcontentloaded" });
-
-    // Expand all accordions manually by simulating clicks
-    await page.evaluate(() => {
-      document.querySelectorAll('.accordion-block__list__item__header__title').forEach(button => button.click());
-    });
-
-    // Wait manually using setTimeout simulation
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const content = await page.content();
-    const $$ = cheerio.load(content);
-    await browser.close();
-
+    // 🧠 Extragem orașul principal (din URL)
     const urlParts = embassyUrl.split("/").filter(Boolean);
     const lastPart = urlParts[urlParts.length - 1];
     const slugParts = lastPart.split("-");
-    const capitalCity = slugParts.length > 1 ? slugParts.slice(1).join(" ").replace(/\b\w/g, l => l.toUpperCase()) : "Unknown";
+    const capitalCity = slugParts.length > 1
+      ? slugParts.slice(1).join(" ").replace(/\b\w/g, l => l.toUpperCase())
+      : "Unknown";
 
     const cities = [capitalCity];
-    console.log("📍 Capital city extracted:", capitalCity);
 
+    // 🧠 Extragem din conținut tot ce arată ca nume de orașe
     $$(".accordion-block__list__item__header__title__text").each((_, el) => {
       const city = $$(el).text().trim();
       if (
@@ -87,15 +72,12 @@ exports.handler = async function (event) {
       }
     });
 
-    console.log("🏙️ All extracted cities:", cities);
-
     return {
       statusCode: 200,
       body: JSON.stringify({ cities, embassyUrl }),
       headers: { "Content-Type": "application/json" }
     };
   } catch (err) {
-    console.error("❌ Error occurred:", err.message);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: err.message }),
@@ -103,3 +85,4 @@ exports.handler = async function (event) {
     };
   }
 };
+
