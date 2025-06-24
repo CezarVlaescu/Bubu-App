@@ -24,8 +24,9 @@ exports.handler = async function (event) {
   try {
     const response = await axios.get(embassyUrl);
     const $ = cheerio.load(response.data);
-
-    const cityHeader = $(`.accordion-block__list__item__header__title__text:contains(${city})`).first();
+    
+    const shortCity = city.split(",")[0].trim();
+    const cityHeader = $(`.accordion-block__list__item__header__title__text:contains(${shortCity})`).first();
     const cityContent = cityHeader.closest('.accordion-block__list__item').find('.accordion-block__list__item__content__inner');
 
     let person = "Not found on page";
