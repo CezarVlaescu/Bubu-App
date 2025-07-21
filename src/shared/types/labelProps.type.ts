@@ -1,14 +1,14 @@
 export type TChoicesLabelProps = {
-    name: string;
-    link: string;
-}
+  name: string;
+  link: string;
+};
 
 export type TLinkCheckerResponse = {
-    link: string;
-    status: string;
-}
+  link: string;
+  status: string;
+};
 
 export enum StatusEnum {
-    VALID = 'VALID',
-    INVALID = 'INVALID'
+  VALID = "VALID",
+  INVALID = "INVALID",
 }

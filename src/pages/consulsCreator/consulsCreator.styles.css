@@ -4,7 +4,7 @@
   padding: 24px;
   background-color: #f9fbfc;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .ambassador-input {
@@ -89,4 +89,26 @@
 
 .ambassador-others strong {
   color: #000;
+}
+
+.ambassador-name-link {
+  background: none;
+  border: none;
+  color: #0077cc;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.ambassador-name-link:hover {
+  color: #004b8d;
+}
+
+.ambassador-career {
+  background: #f1f1f1;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-style: italic;
 }

@@ -3,48 +3,48 @@ const puppeteer = require("puppeteer");
 require("dotenv").config();
 
 exports.handler = async function (event) {
-    if (event.httpMethod !== "POST") {
-        return {
-            statusCode: 405,
-            body: JSON.stringify({ error: "Method not allowed" })
-        };
-    }
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: "Method not allowed" }),
+    };
+  }
 
-    const { politician, customSource } = JSON.parse(event.body);
-    if (!politician) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({ error: "Missing politician name" })
-        };
-    }
+  const { politician, customSource } = JSON.parse(event.body);
+  if (!politician) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Missing politician name" }),
+    };
+  }
 
-    let extraResearchText = "";
+  let extraResearchText = "";
 
-    if (customSource && customSource.startsWith("http")) {
-        try {
-            console.log(`🔍 Fetching data from ${customSource}...`);
-            const browser = await puppeteer.launch({ headless: "new" });
-            const page = await browser.newPage();
-            await page.goto(customSource, { waitUntil: "domcontentloaded" });
-
-            extraResearchText = await page.evaluate(() => {
-                return Array.from(document.querySelectorAll("p"))
-                    .map(p => p.innerText)
-                    .join("\n");
-            });
-
-            await browser.close();
-            console.log("✅ Extracted text from provided source.");
-        } catch (error) {
-            console.error("❌ Failed to fetch provided source:", error);
-        }
-    }
-
+  if (customSource && customSource.startsWith("http")) {
     try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      console.log(`🔍 Fetching data from ${customSource}...`);
+      const browser = await puppeteer.launch({ headless: "new" });
+      const page = await browser.newPage();
+      await page.goto(customSource, { waitUntil: "domcontentloaded" });
 
-        const prompt = `
+      extraResearchText = await page.evaluate(() => {
+        return Array.from(document.querySelectorAll("p"))
+          .map((p) => p.innerText)
+          .join("\n");
+      });
+
+      await browser.close();
+      console.log("✅ Extracted text from provided source.");
+    } catch (error) {
+      console.error("❌ Failed to fetch provided source:", error);
+    }
+  }
+
+  try {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = `
         Vreau să creezi un profil detaliat pentru ${politician}. 
 
         Dacă am text suplimentar, folosește-l ca sursă principală:
@@ -72,49 +72,50 @@ exports.handler = async function (event) {
         - Dacă nu există informații, returnează un obiect gol.
         `;
 
-        console.log("🔹 Sending request to Gemini...");
-        const result = await model.generateContent(prompt);
+    console.log("🔹 Sending request to Gemini...");
+    const result = await model.generateContent(prompt);
 
-        const rawText = await result.response.text();
-        console.log("🔹 Gemini raw response:", rawText);
-        
-        const cleanedText = rawText
-            .trim()
-            .replace(/^```json\s*/, "")
-            .replace(/\s*```$/, "");
-        
-        console.log("🔹 Cleaned JSON response:", cleanedText);
-        
-        let answer;
-        try {
-            answer = JSON.parse(cleanedText);
-            if (!answer.name || !Array.isArray(answer.positions)) {
-                throw new Error("Invalid JSON structure");
-            }
-        } catch (error) {
-            console.error("❌ Failed to parse JSON from Gemini:", error);
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ 
-                    error: "Invalid JSON response from Gemini",
-                    rawResponse: cleanedText
-                })
-            };
-        }
-        if (answer.sources) {
-            answer.sources = answer.sources.filter(url => !url.includes("wikipedia.org"));
-        }
+    const rawText = await result.response.text();
+    console.log("🔹 Gemini raw response:", rawText);
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify(answer)
-        };
+    const cleanedText = rawText
+      .trim()
+      .replace(/^```json\s*/, "")
+      .replace(/\s*```$/, "");
+
+    console.log("🔹 Cleaned JSON response:", cleanedText);
+
+    let answer;
+    try {
+      answer = JSON.parse(cleanedText);
+      if (!answer.name || !Array.isArray(answer.positions)) {
+        throw new Error("Invalid JSON structure");
+      }
     } catch (error) {
-        console.error("❌ Gemini API error:", error.message);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: error.message })
-        };
+      console.error("❌ Failed to parse JSON from Gemini:", error);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: "Invalid JSON response from Gemini",
+          rawResponse: cleanedText,
+        }),
+      };
     }
-};
+    if (answer.sources) {
+      answer.sources = answer.sources.filter(
+        (url) => !url.includes("wikipedia.org"),
+      );
+    }
 
+    return {
+      statusCode: 200,
+      body: JSON.stringify(answer),
+    };
+  } catch (error) {
+    console.error("❌ Gemini API error:", error.message);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message }),
+    };
+  }
+};
